@@ -3,6 +3,7 @@ from tensorflow import keras
 
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 
 print(tf.__version__)
 
@@ -47,7 +48,16 @@ model.compile(optimizer='adam',
               loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
               metrics=['accuracy'])
 
-model.fit(train_images, train_labels, epochs=10)
+# Save the Model and use it without having to compile it everytime
+checkpoint_path = "training_1/cp.ckpt"
+checkpoint_dir = os.path.dirname(checkpoint_path)
+
+# Create a callback that saves the model's weights
+cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,
+                                                 save_weights_only=True,
+                                                 verbose=1)
+
+model.fit(train_images, train_labels, epochs=10, callbacks=[cp_callback])
 
 test_loss, test_acc = model.evaluate(test_images,  test_labels, verbose=2)
 
@@ -61,3 +71,5 @@ predictions = probability_model.predict(test_images)
 print(predictions[0])
 
 print(np.argmax(predictions[0]))
+
+print(test_labels[0])
